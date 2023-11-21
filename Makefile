@@ -17,7 +17,7 @@ env-dev: precommit synutils.git chemblpipe.git
 
 env-local: precommit chemblpipe.git
 	conda env create -f ./environment.yaml -p ./env
-	cd ../synple-utils && ../synple-retro/env/bin/python -m pip install -e .
+	cd ../synple-utils && ../syn-retro-public/env/bin/python -m pip install -e .
 	cd chemblpipe.git && ../env/bin/python -m pip install -e .
 	${python} -m pip install -e .
 
