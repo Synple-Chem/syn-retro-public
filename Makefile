@@ -36,5 +36,5 @@ prepare-bb-db:
 run-retro:
 	run_retro --data-path ${CMPD_PATH}
 
-test: python
+test:
 	${python} -m pytest ./tests
