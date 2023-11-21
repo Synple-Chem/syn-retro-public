@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "syn_retro"
+authors = [
+    {name = "Oh-hyeon Choung", email = "ohhyeon.choung@gmail.com"},
+]
+description = "SynpleChem retrosynthesis project"
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["version"]
+
+[project.scripts]
+prepare_bb_db = "syn_retro.prepare_bb_db:main"
+run_retro = "syn_retro.main:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "syn_retro.__version__"}
+
+[options.packages.find]
+where="src"

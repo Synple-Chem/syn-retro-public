@@ -1,0 +1,9 @@
+﻿id,SMILES
+0,CC(C)(C)OC(=O)N1[C@H](C=O)COC1(C)C
+1,CC(C)(C)OC(=O)N1CCN(c2ccc(C=O)cc2)CC1
+2,c1ccc2c3c([nH]c2c1)CCNC3
+3,CC1CNCC(C)O1
+4,FC(F)(F)c1ccc(N2CCNCC2)cc1
+5,CCCC(=O)CCc1ccccc1
+6,CCC(=O)C(C)C
+7,CC(=O)CCCO
