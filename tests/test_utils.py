@@ -1,4 +1,4 @@
-from syn_retro.utils import dict_to_df
+# from syn_retro.utils import dict_to_df
 
 
 def test_dict_to_df():
