@@ -1,6 +1,8 @@
 # Rule-Based Retrosynthesis python package
 Syn-retro project decomposes compounds with the defined reaction SMARTS and given set of accessible building blocks. The package is developed in python and can be used as a python package or a command line tool.
 
+<img src="resources/figs/syn-retro.png" alt="syn-retro" width=80% class="center">
+
 The rule-based retrosynthesis is processed in following steps:
 1. Match all possible the templates with the target compound
 2. Fragment the compound with the matched templates
