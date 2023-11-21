@@ -16,3 +16,4 @@ dependencies:
   - sqlalchemy
   - pytest
   - chemicalite
+  - yaml
