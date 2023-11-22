@@ -5,7 +5,7 @@
 # Rule-Based Retrosynthesis python package
 Syn-retro project decomposes compounds with the defined reaction SMARTS and given set of accessible building blocks. The package is developed in python and can be used as a python package or a command line tool.
 
-<img src="resources/figs/syn-retro.png" alt="syn-retro" width=80% class="center">
+<img src="resources/figs/syn-retro.png" alt="syn-retro" width=80% class="center" />
 
 The rule-based retrosynthesis is processed in following steps:
 1. Match all possible the templates with the target compound
@@ -15,9 +15,9 @@ The rule-based retrosynthesis is processed in following steps:
 
 Steps 1-2 are wrapped as `fragement_compound` function in `syn_retro` package. The function takes a compound and a retrosynthesis reaction smarts as inputs and returns a list of fragments. Then, `search_fragment` function processes step 3. The function has two modes, exact inchi key search mode and similarity search mode. By default, it uses exact inchi key search mode. The similarity search mode is used when the exact inchi key search mode fails to find the fragment.
 
-These two functions are wrapped in `retrosynthesis` function in `syn_retro` package. The function takes a compound and a retrosynthesis reaction smarts as inputs and returns a list of fragments and the corresponding id from the database. The function repeats the process until all fragments are found. The users can specify the number of iterations. The default number of iterations is 3. In Synple Chem, we have demonstrated that three step reactions can cover more than 10^12 of chemical space.
+These two functions are wrapped in `return_1_step_retro_plan` function in `syn_retro` package. The function takes a compound and a retrosynthesis reaction smarts as inputs and returns a list of fragments and the corresponding id from the database. The function repeats the process until all fragments are found. The users can specify the number of iterations. The default number of iterations is 3. In Synple Chem, we have demonstrated that three step reactions can cover more than 10^12 of chemical space.
 
-For the bulk retrosynthesis process, the users can use `retrosynthesis_bulk` function in `syn_retro` package. The function takes a list of compounds and a retrosynthesis reaction smarts as inputs and returns a list of fragments and the corresponding id from the database. The function repeats the process until all fragments are found. The users can specify the number of iterations. The default number of iterations is 3. This function uses multiprocessing to speed up the process.
+(on-process) For the bulk retrosynthesis process, the users can use `retrosynthesis_bulk` function in `syn_retro` package. The function takes a list of compounds and a retrosynthesis reaction smarts as inputs and returns a list of fragments and the corresponding id from the database. The function repeats the process until all fragments are found. The users can specify the number of iterations. The default number of iterations is 3. This function uses multiprocessing to speed up the process.
 
 ## Pre-requisites for building block database
 To enable the retrosynthesis model, the users needs to provide the list of building blocks in `.csv` file with a colmn with building block id (named as `id`, integer) and building block smiles (named as `smiles`, and preferrably a parent mol, such as [ChEMBL parent mol](https://github.com/chembl/ChEMBL_Structure_Pipeline)). With the following command, a temporal sqlite database will be generated with the provided building blocks.
