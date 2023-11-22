@@ -73,14 +73,36 @@ def search_fragment(
             when Tuple, the list of fragments are searched within the same reactant
             when List[Tuple], the list of fragments are searched within the corresponding reactants
                 len(reactant_names) == len(fragments). Defaults to None.
+
+    Returns:
+        List[Dict]: list of dictionary of fragments
+            keys: parent_id, smiles, inchikey
+            values: List of building block information
+                for example, when two fragments are generated from one reaction,
+                    the list contains two elements.
+                    e.g., parent_id: [bb1_id, bb2_id], smiles: [bb1_smiles, bb2_smiles]
+                when one fragment is generated from one reaction,
+                    the list contains one element.
+                    e.g., parent_id: [bb1_id], smiles: [bb1_smiles]
+                when no building block is found from db, None is returned.
+                    e.g., parent_id: [None, bb2_id], smiles: [None, bb2_smiles]
+            when wrong type is given, empty list is returned
     """
+    all_frag_dict: List = []
     if type == "exact" and connection is not None:
         all_frag_dict = search_exact_fragment_in_db(
             connection=connection, fragments=fragments, reactant_names=reactant_names
         )
+    elif type == "similarity":
+        search_similar_fragment_in_db()
     else:
-        NotImplementedError("Only exact search is implemented at the moment")
+        raise (ValueError("Type should be either 'exact' or 'similarity'"))
     return all_frag_dict
+
+
+def search_similar_fragment_in_db():
+    # placeholder
+    raise (NotImplementedError("Only exact search is implemented at the moment"))
 
 
 def search_exact_fragment_in_db(
