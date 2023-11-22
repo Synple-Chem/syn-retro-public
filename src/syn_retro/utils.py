@@ -118,12 +118,11 @@ def connect_to_sqlite(
     https://github.com/rvianello/chemicalite/blob/master/docs/tutorial_1st.rst
 
     Args:
-        cache_bb_db_path (Path, optional): path to cached sqlite db. Defaults to DATA_PATH/"vlib_bb_cache_unwanted.db".
+        cache_bb_db_path (Path, optional): path to cached sqlite db.
 
     Returns:
         Connection: sqlite connection
     """
-    assert cache_bb_db_path.exists(), f"{cache_bb_db_path} does not exist"
     connection = sqlite3.connect(str(cache_bb_db_path))
     connection.enable_load_extension(True)
     connection.load_extension("chemicalite")
