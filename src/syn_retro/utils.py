@@ -3,15 +3,10 @@ from pathlib import Path
 from sqlite3 import Connection
 from typing import Dict, List, Tuple
 
-import numpy as np
 import pandas as pd
 import yaml  # type: ignore
 from rdkit import Chem  # type: ignore
-from rdkit.Chem import Draw, MolFromSmiles, rdChemReactions, rdmolops
-from sklearn.cluster import KMeans, MiniBatchKMeans
-from synutils.dimension_pickers import get_dim_picker
-from synutils.featurizers import Featurizer, get_featurizer
-from synutils.plotters import plot_projections
+from rdkit.Chem import Draw, rdChemReactions, rdmolops
 
 from syn_retro.path import ASSET_PATH, DATA_PATH
 from syn_retro.syn_types import Mol
@@ -57,85 +52,40 @@ def decompose_mol(rxn_smarts: str, mol: Mol) -> List[Tuple]:
     return bbs
 
 
-def feat_kmeans_picker(
-    mols: List[Mol],
-    n_select: int,
-    featurizer: Featurizer,
-    rng: np.random.Generator | None = None,
-) -> np.ndarray:
-    """Pick indices of molecules that are most diverse in terms of features.
-    Features can be fingerprints, descriptors, and combinations of them.
-    returns unique indices of each cluster.
-
-    Args:
-        mols (List[Mol]): List of molecules.
-        featurizer (Featurizer): Featurizer object.
-        n_select (int): Number of clusters to use.
-        rng (np.random.Generator, optional): Random number generator. Defaults to None.
-
-    Returns:
-        np.ndarray: Array of indices.
-    """
-    # as sklearn does not support np.random.Generator, choose random_state fron rng
-    if rng is None:
-        rng = np.random.default_rng()
-    random_state = rng.integers(10000)
-
-    array_to_cluster = np.array([featurizer.get_feat(mol) for mol in mols])
-    kmeans_func = MiniBatchKMeans if array_to_cluster.shape[0] > 10000 else KMeans
-    kmeans = kmeans_func(
-        n_clusters=n_select, random_state=random_state, n_init="auto"
-    ).fit(array_to_cluster)
-    _, unique_idx = np.unique(kmeans.labels_, return_index=True)
-    return unique_idx
-
-
-def diversity_pick_compounds(
-    cmpds: List[str] | List[Mol], n_select: int = 100
-) -> List[int]:
-    """pick n_select compounds from the list of compounds
-    If the cmpds are given as smiles, they will be converted to mol
-
-    Args:
-        cmpds (List[str] | List[Mol]): list of compounds
-        n_select (int, optional): number of compounds to pick. Defaults to 100.
-
-    Returns:
-        List[int]: list of idx of compounds
-    """
-    if isinstance(cmpds[0], str):
-        cmpds = [MolFromSmiles(c) for c in cmpds]
-    # remove duplicates
-    cmpds = list(set(cmpds))
-    # sanitize
-    cmpds = [sanitize_mol(c) for c in cmpds]
-    # pick n_select with k-means
-    featurizer = get_featurizer("morgan")
-    idx = feat_kmeans_picker(cmpds, n_select, featurizer)
-
-    return idx
-
-
-def get_retro_rxn_smarts() -> Dict[str, str]:
+def get_retro_rxn_smarts(
+    asset_path: Path = ASSET_PATH / "rxn_smarts.yaml",
+) -> Dict[str, str]:
     """get reaction smarts for retrosynthesis saved in asset file
+
+    Args:
+        asset_path (Path, optional): path to asset file. This yaml file contains the 'retro-rxn' section.
+            It includes retro-reaction smarts. Defaults to ASSET_PATH/"rxn_smarts.yaml".
 
     Returns:
         Dict: dictionary of reaction name as keys and reaction smarts as values
             e.g., {"suzuki": "smarts"}
     """
-    with open(ASSET_PATH / "rxn_smarts.yaml", "r") as f:
+    assert asset_path.exists(), f"{asset_path} does not exist"
+    with open(asset_path, "r") as f:
         rxn_smarts = yaml.safe_load(f)
     return rxn_smarts["retro-rxn"]
 
 
-def get_rxn_reactants() -> Dict[str, List[str]]:
+def get_rxn_reactants(
+    asset_path: Path = ASSET_PATH / "rxn_smarts.yaml",
+) -> Dict[str, List[str]]:
     """get reactant names for each reaction
+
+    Args:
+        asset_path (Path, optional): path to asset file. This yaml file contains the 'reactants' section.
+            It includes reactant names for each reaction. Defaults to ASSET_PATH/"rxn_smarts.yaml".
 
     Returns:
         Dict: dictionary of reaction name as keys and list of reactant names as values
             e.g., {"suzuki": ["boronic acid", "halide"]}
     """
-    with open(ASSET_PATH / "rxn_smarts.yaml", "r") as f:
+    assert asset_path.exists(), f"{asset_path} does not exist"
+    with open(asset_path, "r") as f:
         rxn_smarts = yaml.safe_load(f)
     reactant_dict: Dict = {}
     for k, v in rxn_smarts["reactants"].items():
@@ -155,6 +105,7 @@ def get_substrate_smarts(
     Returns:
         Dict[str, str]: dictionary of substrate name and smarts
     """
+    assert asset_path.exists(), f"{asset_path} does not exist"
     with open(asset_path, "r") as f:
         smarts = yaml.safe_load(f)
     return smarts
@@ -172,29 +123,12 @@ def connect_to_sqlite(
     Returns:
         Connection: sqlite connection
     """
+    assert cache_bb_db_path.exists(), f"{cache_bb_db_path} does not exist"
     connection = sqlite3.connect(str(cache_bb_db_path))
     connection.enable_load_extension(True)
     connection.load_extension("chemicalite")
     connection.enable_load_extension(False)
     return connection
-
-
-def plot_umap(mols: List[Mol], fignm: str = "umap.png"):
-    """Plot umap of mols
-    Using morgan fingerprint as features
-
-    Args:
-        mols (List[Mol]): List of rdkit mol objects
-        fignm (str, optional): file name od the saved fiture. Defaults to "umap.png".
-    """
-    # dimension picker
-    featurizer = get_featurizer("morgan")
-    dim_picker = get_dim_picker("umap")
-
-    fp_array = np.array([featurizer.get_feat(mol) for mol in mols])
-    axes = dim_picker.get_axis(fp_array)
-    fig = plot_projections(axes)
-    fig.savefig(DATA_PATH / fignm)
 
 
 def plot_cmpds(
@@ -298,7 +232,3 @@ def dict_to_df(full_retro_dict: Dict) -> pd.DataFrame:
             row_num += 1
 
     return df
-
-
-RXN_SMARTS = get_retro_rxn_smarts()
-REACTANT_DICT = get_rxn_reactants()
