@@ -1,5 +1,5 @@
 from sqlite3 import Connection
-from typing import Dict, List, Tuple
+from typing import Dict, List, Literal, Tuple
 
 from rdkit.Chem import MolFromSmiles, MolToInchiKey, MolToSmiles, rdmolops
 
@@ -12,7 +12,7 @@ def fragment_compound(
 ) -> Dict[str, List[Tuple[Mol, Mol | None]]]:
     """fragment a compound into building blocks
     Iteratively match reaction smarts to the molecule
-    Then, return the fragments per reaction
+    Then, return the unique fragments per reaction
 
     Args:
         mol (Mol): rdkit mol object
@@ -49,6 +49,38 @@ def fragment_compound(
                     tuple([MolFromSmiles(bb) for bb in joined_smiles.split(".")])
                 )
     return fragment_dict
+
+
+def search_fragment(
+    fragments: List[Tuple[Mol, Mol | None]],
+    type: Literal["exact", "similarity"] = "exact",
+    connection: Connection | None = None,
+    reactant_names: List[Tuple] | Tuple | None = None,
+) -> List[Dict]:
+    """Search fragments wrapper to search in the building block database
+    exact search: search fragments with the same inchikey-first-14-characters
+    similarity search: search fragments with the similar smiles tanioto coefficient > 0.8
+
+    Args:
+        fragments (List[Tuple[Mol, Mol | None]]): list of tuples of fragments
+            each tuple contains one or two fragments (Mol object), depends on the reaction
+        type (Literal["exact", "similarity"], optional): type of search. Defaults to "exact".
+            exact: search_exact_fragment_in_db()
+            similarity: search_similar_fragment_in_db() (not implemented yet)
+        connection (Connection | None, optional): sqlite connection. Defaults to None.
+        reactant_names (List[Tuple] | Tuple | None, optional): List of reactant names or None
+            when None, all reactants are searched
+            when Tuple, the list of fragments are searched within the same reactant
+            when List[Tuple], the list of fragments are searched within the corresponding reactants
+                len(reactant_names) == len(fragments). Defaults to None.
+    """
+    if type == "exact" and connection is not None:
+        all_frag_dict = search_exact_fragment_in_db(
+            connection=connection, fragments=fragments, reactant_names=reactant_names
+        )
+    else:
+        NotImplementedError("Only exact search is implemented at the moment")
+    return all_frag_dict
 
 
 def search_exact_fragment_in_db(
@@ -151,7 +183,7 @@ def return_1_step_retro_plan(
             # for each reaction, returned fragments can be more than one
             # thus, returned search_info can include more than one elements
             reactants = tuple(reactant_dict[rxn_nm]) if reactant_dict else None
-            search_info = search_exact_fragment_in_db(
+            search_info = search_fragment(
                 connection=connection, fragments=fragments, reactant_names=reactants
             )
             for ii, res in enumerate(search_info):
