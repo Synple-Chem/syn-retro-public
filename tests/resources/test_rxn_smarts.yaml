@@ -1,0 +1,8 @@
+retro-rxn:
+  abf: ''
+  ra: ''
+  re_boc: ''
+
+reactants:
+  abf: amine,carboxylic_acid
+  ra: aldehyde,amine
