@@ -25,12 +25,12 @@ To enable the retrosynthesis model, the users needs to provide the list of build
 By default, a table called `building_blocks` will be generated with the following columns: `id`, `smiles`, `cano_smiles`, `inchi_key`, `parent_smiles`, `parent_inchi_key`.
 
 ```
-prepare_bb_db --csv-path "PATH_TO_CSV_FILE" --db-path "PATH_TO_DB_FILE" --reagent-class-assets "assets/sub_smarts.yaml"
+prepare_bb_db --csv-path "PATH_TO_CSV_FILE" --db-path "PATH_TO_DB_FILE" --reactant-class-assets "assets/sub_smarts.yaml"
 ```
 The users can also provide the substrate smarts in yaml file. The yaml file should be in the following format:
 ```
-reagent_name_1: smarts_1
-reagent_name_2: smarts_2
+reactant_name_1: smarts_1
+reactant_name_2: smarts_2
 ...
 ```
 When substrate smarts are provided, then it makes tables for each substrates. In this case, for bb searching, the search space is restrict to the substrates, thus, a faster search.

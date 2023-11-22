@@ -8,7 +8,7 @@ from syn_retro.prepare_bb_db import (
     REQUIRED_KEYS,
     add_mol_info,
     create_bb_db,
-    create_reagent_tables,
+    create_reactant_tables,
     insert_df_to_db,
 )
 
@@ -62,17 +62,17 @@ def test_insert_df_to_db(bb_csv_path: Path):
     db_path.unlink()
 
 
-def test_create_reagent_tables(bb_csv_path: Path, reagent_smarts: Dict):
+def test_create_reactant_tables(bb_csv_path: Path, reactant_smarts: Dict):
     db_path = bb_csv_path.parent / f"{str(bb_csv_path.name).split('.')[0]}.sqlite"
     connection = create_bb_db(db_path)
     df = pd.read_csv(bb_csv_path)
     df = add_mol_info(df)
     insert_df_to_db(df, connection)
-    create_reagent_tables(connection, reagent_smarts)
+    create_reactant_tables(connection, reactant_smarts)
     cursor = connection.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     tables = cursor.fetchall()
-    assert tables == [("building_blocks",)] + [(k,) for k in reagent_smarts.keys()]
+    assert tables == [("building_blocks",)] + [(k,) for k in reactant_smarts.keys()]
     cursor.close()
     connection.close()
     db_path.unlink()

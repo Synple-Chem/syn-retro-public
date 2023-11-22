@@ -43,7 +43,7 @@ def query_insert(table_name: str):
 
 def create_bb_db(db_path: Path) -> Connection:
     """create building block sqlite database
-    When reagent_smarts is provided, the reagent specific tables will be created.
+    When reactant_smarts is provided, the reactant specific tables will be created.
     SQLite database schema:
     building_blocks
         id INTEGER PRIMARY KEY,
@@ -64,18 +64,18 @@ def create_bb_db(db_path: Path) -> Connection:
     return connection
 
 
-def create_reagent_tables(connection: Connection, reagent_smarts: Dict):
-    """Create reagent specific tables
+def create_reactant_tables(connection: Connection, reactant_smarts: Dict):
+    """Create reactant specific tables
 
     Args:
         connection (Connection): sqlite connection
-        reagent_smarts (Dict): reagent smarts, keys are reagent class names
+        reactant_smarts (Dict): reactant smarts, keys are reactant class names
     """
     cursor = connection.cursor()
     # add molecule column
     cursor.execute("ALTER TABLE building_blocks ADD molecule MOL")
     cursor.execute("UPDATE building_blocks SET molecule=mol_from_smiles(smiles)")
-    for k, v in reagent_smarts.items():
+    for k, v in reactant_smarts.items():
         cursor.execute(query_create_table(k))
         cursor.execute(
             query_insert(k)
@@ -157,10 +157,10 @@ def get_args() -> argparse.Namespace:
         "--db-dir", type=Path, default=DATA_PATH, help="Dir to sqlite3 db file"
     )
     parser.add_argument(
-        "--reagent-class-assets",
+        "--reactant-class-assets",
         type=Path,
         default=ASSET_PATH / "sub_smarts.yaml",
-        help="Path to assets saving reagent smarts",
+        help="Path to assets saving reactant smarts",
     )
     parser.add_argument(
         "--chunksize",
@@ -174,9 +174,9 @@ def get_args() -> argparse.Namespace:
 def main():
     args = get_args()
     db_path = args.db_dir / (str(args.csv_path.name).split(".")[0] + ".sqlite")
-    reagent_smarts = (
-        get_substrate_smarts(args.reagent_class_assets)
-        if args.reagent_class_assets.exists()
+    reactant_smarts = (
+        get_substrate_smarts(args.reactant_class_assets)
+        if args.reactant_class_assets.exists()
         else None
     )
 
@@ -191,9 +191,9 @@ def main():
 
         with connection:
             insert_df_to_db(df=df, connection=connection)
-            if reagent_smarts is not None:
-                create_reagent_tables(
-                    connection=connection, reagent_smarts=reagent_smarts
+            if reactant_smarts is not None:
+                create_reactant_tables(
+                    connection=connection, reactant_smarts=reactant_smarts
                 )
 
     logging.info(
