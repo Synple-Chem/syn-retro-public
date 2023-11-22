@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Dict, List
 
+import yaml  # type: ignore
 from pytest import fixture
 
 
@@ -30,10 +31,39 @@ def bb_csv_path(test_resources_path: Path):
 
 
 @fixture
+def sub_smarts_path(test_resources_path: Path):
+    return test_resources_path / "test_sub_smarts.yaml"
+
+
+@fixture
+def rxn_smarts_path(test_resources_path: Path):
+    return test_resources_path / "test_rxn_smarts.yaml"
+
+
+@fixture
 def bb_bad_csv_path(test_resources_path: Path):
     return test_resources_path / "test_bad_bb.csv"
 
 
 @fixture
-def reagent_smarts() -> Dict:
-    return {"carboxylic_acid": "[#6][CX3](=O)[OX2H1]", "aldehyde": "[CX3H1](=O)[#6]"}
+def reactant_smarts(sub_smarts_path: Path) -> Dict:
+    with open(sub_smarts_path, "r") as f:
+        smarts = yaml.safe_load(f)
+    return smarts
+
+
+@fixture
+def rxn_smarts(rxn_smarts_path: Path) -> Dict:
+    with open(rxn_smarts_path, "r") as f:
+        smarts = yaml.safe_load(f)
+    return smarts["retro-rxn"]
+
+
+@fixture
+def reactant_dict(rxn_smarts_path: Path) -> Dict:
+    with open(rxn_smarts_path, "r") as f:
+        smarts = yaml.safe_load(f)
+    reactant_dict: Dict = {}
+    for k, v in smarts["reactants"].items():
+        reactant_dict[k] = v.split(",")
+    return reactant_dict
