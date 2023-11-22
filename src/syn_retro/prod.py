@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 from rdkit.Chem import MolFromSmiles, MolToInchiKey, MolToSmiles, rdmolops
 
 from syn_retro.syn_types import Mol
-from syn_retro.utils import REACTANT_DICT, RXN_SMARTS, decompose_mol, sanitize_mol
+from syn_retro.utils import decompose_mol
 
 
 def fragment_compound(
@@ -119,7 +119,10 @@ def search_exact_fragment_in_db(
 
 
 def return_1_step_retro_plan(
-    mol: Mol, rxn_smarts: Dict, connection: Connection
+    mol: Mol,
+    rxn_smarts: Dict,
+    connection: Connection,
+    reactant_dict: Dict | None = None,
 ) -> List[Dict]:
     """Return 1-step retro plan of a molecule for given reactions
 
@@ -129,6 +132,7 @@ def return_1_step_retro_plan(
             keys: reaction names
             values: reaction smarts
         connection (Connection): sqlite connection to bb information
+        reactant_dict (Dict): dictionary of reactant names, default None
 
     Returns:
         List[Dict]: list of dictionary of found building blocks
@@ -146,7 +150,7 @@ def return_1_step_retro_plan(
         if len(fragments) > 0:
             # for each reaction, returned fragments can be more than one
             # thus, returned search_info can include more than one elements
-            reactants = tuple(REACTANT_DICT[rxn_nm])
+            reactants = tuple(reactant_dict[rxn_nm]) if reactant_dict else None
             search_info = search_exact_fragment_in_db(
                 connection=connection, fragments=fragments, reactant_names=reactants
             )
@@ -202,24 +206,3 @@ def combine_retro_plans(plan_1: Dict, plan_3: Dict) -> Dict:
         "complete": True if plan_3["complete"] else False,
     }
     return full_plan
-
-
-def apply_reboc(mol: Mol) -> Mol:
-    """apply re_boc reaction to a molecule
-    Sanitize the mol and remove Hs
-
-    Args:
-        mol (Mol): rdkit mol object
-
-    Returns:
-        Mol: clean and reboced mol
-    """
-    return_mols: List = []
-    reboc_mols = decompose_mol(RXN_SMARTS["re_boc"], mol)
-    for reboc_mol in reboc_mols:
-        try:
-            reboc_mol = sanitize_mol(reboc_mol[0])
-            return_mols.append(rdmolops.RemoveHs(reboc_mol))
-        except:
-            print("reboc failed")
-    return return_mols
