@@ -19,7 +19,7 @@ These two functions are wrapped in `retrosynthesis` function in `syn_retro` pack
 
 For the bulk retrosynthesis process, the users can use `retrosynthesis_bulk` function in `syn_retro` package. The function takes a list of compounds and a retrosynthesis reaction smarts as inputs and returns a list of fragments and the corresponding id from the database. The function repeats the process until all fragments are found. The users can specify the number of iterations. The default number of iterations is 3. This function uses multiprocessing to speed up the process.
 
-## Pre-requisites of building block database and reaction assets
+## Pre-requisites for building block database
 To enable the retrosynthesis model, the users needs to provide the list of building blocks in `.csv` file with a colmn with building block id (named as `id`, integer) and building block smiles (named as `smiles`, and preferrably a parent mol, such as [ChEMBL parent mol](https://github.com/chembl/ChEMBL_Structure_Pipeline)). With the following command, a temporal sqlite database will be generated with the provided building blocks.
 
 By default, a table called `building_blocks` will be generated with the following columns: `id`, `smiles`, `cano_smiles`, `inchi_key`, `parent_smiles`, `parent_inchi_key`.
@@ -35,7 +35,18 @@ reagent_name_2: smarts_2
 ```
 When substrate smarts are provided, then it makes tables for each substrates. In this case, for bb searching, the search space is restrict to the substrates, thus, a faster search.
 
+## Reaction SMARTS assets
+Users should provide the reaction SMARTS and corresponding reactant names in yaml file. The yaml file should be in the following format, and in `./assets` folder:
+```
+retro-rxn:
+    rxn_1_nm: rxn_1_smarts
+    rxn_2_nm: rxn_2_smarts
+    ...
 
+reactants:
+    rxn_1_nm: reactant_1_nm_of_rxn_1, reactant_2_nm_of_rxn_1, ...
+    rxn_2_nm: reactant_1_nm_of_rxn_2, reactant_2_nm_of_rxn_2, ...
+```
 
 ## Setup
 Setup python package:
