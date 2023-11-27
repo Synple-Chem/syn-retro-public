@@ -31,10 +31,10 @@ precommit:
 	bash ./scripts/install_precommit.sh
 
 prepare-bb-db:
-	prepare_bb_db --csv-path ${CSV_PATH}
+	prepare_bb_db --input ${INPUT_PATH}
 
 run-retro:
-	run_retro --data-path ${CMPD_PATH}
+	run_retro --compound-list ${CMPD_LIST}
 
 test:
 	${python} -m pytest ./tests

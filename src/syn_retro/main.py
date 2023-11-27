@@ -24,10 +24,10 @@ from syn_retro.utils import (
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data-path",
+        "--compound-list",
         type=Path,
         required=True,
-        help="path to the data csv file, should have columns: id, smiles",
+        help="path to the compound list csv file, should have columns: id, smiles",
     )
     parser.add_argument(
         "--save-path",
@@ -55,7 +55,7 @@ def main():
 
     retro_plan_key_to_be_includes = ["rxn_nm", "bb_info", "complete"]
 
-    df = pd.read_csv(args.data_path)  # df should have columns: id, smiles
+    df = pd.read_csv(args.compound_list)  # df should have columns: id, smiles
     full_bb_dict = {}
     for smi_ii, smi in enumerate(df["smiles"].values):
         mol = MolFromSmiles(smi)
