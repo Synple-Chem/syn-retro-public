@@ -152,7 +152,7 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Create building block database using rdkit and chembl_structure_pipeline",
     )
-    parser.add_argument("--csv-path", type=Path, required=True, help="Path to csv file")
+    parser.add_argument("--input", type=Path, required=True, help="Path to csv file")
     parser.add_argument(
         "--db-dir", type=Path, default=DATA_PATH, help="Dir to sqlite3 db file"
     )
