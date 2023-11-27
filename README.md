@@ -25,7 +25,7 @@ To enable the retrosynthesis model, the users needs to provide the list of build
 By default, a table called `building_blocks` will be generated with the following columns: `id`, `smiles`, `cano_smiles`, `inchi_key`, `parent_smiles`, `parent_inchi_key`.
 
 ```
-prepare_bb_db --csv-path "PATH_TO_CSV_FILE" --db-path "PATH_TO_DB_FILE" --reactant-class-assets "assets/sub_smarts.yaml"
+prepare_bb_db --input-file "PATH_TO_CSV_FILE" --db-path "PATH_TO_DB_FILE" --reactant-class-assets "assets/sub_smarts.yaml"
 ```
 The users can also provide the substrate smarts in yaml file. The yaml file should be in the following format:
 ```
@@ -46,6 +46,23 @@ retro-rxn:
 reactants:
     rxn_1_nm: reactant_1_nm_of_rxn_1, reactant_2_nm_of_rxn_1, ...
     rxn_2_nm: reactant_1_nm_of_rxn_2, reactant_2_nm_of_rxn_2, ...
+```
+
+## Usage
+Command line tool is enabled by installing the package. To use the package, the users need to prepare the building block database and reaction SMARTS assets. Then, the users can use the following command to run the retrosynthesis model:
+
+- Prepare building block database
+```
+prepare_bb_db --input-file "PATH_TO_CSV_FILE" --db-path "PATH_TO_DB_FILE" --reactant-class-assets "assets/sub_smarts.yaml"
+```
+- (on-process) Prepare reaction SMARTS assets
+    - Instead, users can directly prepare the retro-reaction SMARTS assets in `./assets` folder.
+```
+validate-rxn-smarts --smarts "PATH_TO_RXN_SMARTS_FILE"
+```
+- Run retrosynthesis model
+```
+run-retro --compound-list "PATH_TO_COMPOUND_LIST"
 ```
 
 ## Setup
